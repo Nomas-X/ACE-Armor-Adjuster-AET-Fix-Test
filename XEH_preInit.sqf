@@ -147,6 +147,50 @@ private _modName = localize "STR_AAA_Name";
 ] call CBA_fnc_addSetting;
 
 [
+	"AAA_VAR_DEBUG",
+	"CHECKBOX",
+	["$STR_AAA_DEBUG", "$STR_AAA_DEBUG_Desc"],
+	[_modName, "$STR_AAA_Toggles"],
+	false,
+	1,
+	{},
+	false
+] call CBA_fnc_addSetting;
+
+[
+	"AAA_VAR_ARMOR_THRESHOLD_VALUE",
+	"SLIDER",
+	["$STR_AAA_THRESHOLD_VALUE", "$STR_AAA_THRESHOLD_VALUE_Desc"],
+	[_modName, "$STR_AAA_ArmorCoefs"],
+	[0, 50, 0, 2, false],
+	1,
+	{},
+	false
+] call CBA_fnc_addSetting;
+
+[
+	"AAA_VAR_BASE_ARMOR_VALUE",
+	"SLIDER",
+	["$STR_AAA_BASE_ARMOR_VALUE", "$STR_AAA_BASE_ARMOR_VALUE_Desc"],
+	[_modName, "$STR_AAA_ArmorCoefs"],
+	[0, 50, 0, 2, false],
+	1,
+	{},
+	false
+] call CBA_fnc_addSetting;
+
+[
+	"AAA_VAR_FORCE_BASE_ARMOR",
+	"CHECKBOX",
+	["$STR_AAA_FORCE_BASE_ARMOR", "$STR_AAA_FORCE_BASE_ARMOR_Desc"],
+	[_modName, "$STR_AAA_Toggles"],
+	false,
+	1,
+	{},
+	false
+] call CBA_fnc_addSetting;
+
+[
 	"AAA_VAR_PLAYER_ARMOR_COEF",
 	"SLIDER",
 	["$STR_AAA_PlayerArmorCoef", "$STR_AAA_PlayerArmorCoef_Desc"],
