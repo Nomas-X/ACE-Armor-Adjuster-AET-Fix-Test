@@ -27,15 +27,14 @@ _unit setVariable [
 			// Don't do custom damage processing for disabled hitpoints
 			if !(missionNameSpace getVariable [format ["AAA_VAR_%1_ENABLED", _hitPoint], false]) exitWith {};
 			
-			private ["_prevDamage", "_armorCoef"];
+			private ["_prevDamage", "_armorCoef", "_hitpointArmor"];
 			// Hitpoint damage before this calculation
 			if (_hitPoint == "") then {
 				_prevDamage = damage _unit;
 			} else {
 				_prevDamage = _unit getHitIndex _hitIndex;
 			};
-			
-			private _hitpointArmor;
+		
 			// Set hitpoint armor value to base armor value if forcing base armor, otherwise just add the base armor to the worn armor
 			if (AAA_VAR_FORCE_BASE_ARMOR) then {
 				_hitpointArmor = AAA_VAR_BASE_ARMOR_VALUE;
