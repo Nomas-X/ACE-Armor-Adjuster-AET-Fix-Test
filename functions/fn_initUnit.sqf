@@ -21,7 +21,8 @@ _unit removeEventHandler ["HandleDamage", _unit getVariable ["ACE_medical_Handle
 _unit setVariable [
 	"ACE_medical_HandleDamageEHID", 
 	_unit addEventHandler ["HandleDamage", {
-		if (AAA_VAR_MOD_ENABLED) then {
+		// Only do AAA damage processing if the mod is enabled, and not for players unless AAA_VAR_PLAYERS_ENABLED
+		if (AAA_VAR_MOD_ENABLED && {AAA_VAR_PLAYERS_ENABLED || {!isPlayer _unit}}) then {
 			params ["_unit", "_selection", "_damage", "_source", "_projectile", "_hitIndex", "_instigator", "_hitPoint"];
 			
 			// Don't do custom damage processing for disabled hitpoints
@@ -107,10 +108,23 @@ _unit setVariable [
 			} else {
 				_addedDamage = 0;
 			};
-
-			//simple DEBUG message
+			
 			if (AAA_VAR_DEBUG) then {
-				systemChat format["prevDamage: %1, addedDamage: %2, hitpointArmor: %3, total damage: %4", _prevDamage, _addedDamage, _hitpointArmor, _prevDamage + _addedDamage];
+				private _ogDamage = _damage - _prevDamage;
+				diag_log text "AAA DEBUG: NEW HIT PROCESSED! DETAILS BELOW:";
+				diag_log text format ["HIT UNIT: %1", _unit];
+				diag_log text format ["SHOOTER: %1", _source];
+				diag_log text format ["HITPOINT: %1", _hitPoint];
+				diag_log text format ["HITPOINT ARMOR: %1", _hitpointArmor];
+				diag_log text format ["ORIGINAL DAMAGE RECEIVED: %1", _ogDamage];
+				diag_log text format ["NEW DAMAGE RECEIVED: %1", _addedDamage];
+				if (_ogDamage != 0) then {
+					diag_log text format ["%1 DAMAGE CHANGE: %2%3", "%", ((_addedDamage - _ogDamage) * 100 / _ogDamage) toFixed 2, "%"];
+				} else {
+					diag_log text "% DAMAGE CHANGE: N/A";
+				};
+				diag_log text format ["TOTAL HITPOINT DAMAGE: %1", _prevDamage + _addedDamage];
+				diag_log text "";
 			};
 			
 			// Replace original damage value with new damage value

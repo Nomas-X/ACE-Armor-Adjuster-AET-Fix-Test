@@ -26,6 +26,17 @@ private _modName = localize "STR_AAA_Name";
 ] call CBA_fnc_addSetting;
 
 [
+	"AAA_VAR_PLAYERS_ENABLED",
+	"CHECKBOX",
+	["$STR_AAA_PlayersEnabled", "$STR_AAA_PlayersEnabled_Desc"],
+	[_modName, "$STR_AAA_Toggles"],
+	true,
+	1,
+	{},
+	false
+] call CBA_fnc_addSetting;
+
+[
 	"AAA_VAR_HITFACE_ENABLED",
 	"CHECKBOX",
 	["$STR_AAA_FaceEnabled", "$STR_AAA_HPEnabled_Desc"],

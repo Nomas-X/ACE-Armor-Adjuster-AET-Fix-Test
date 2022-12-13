@@ -807,5 +807,31 @@
       <Portuguese>Forçará todas as unidades a ter o Valor da Armadura de Base, independentemente da armadura que estejam a usar de facto.</Portuguese>
       <Czech>Vynutí si, aby všechny jednotky měly základní hodnotu zbroje bez ohledu na to, jakou zbroj skutečně nosí.</Czech>
     </Key>
+    <Key ID="STR_AAA_PlayersEnabled">
+      <English>Enabled for Players</English>
+      <Spanish>Activado para jugadores</Spanish>
+      <German>Aktiviert für Spieler</German>
+      <Chinesesimp>为玩家启用</Chinesesimp>
+      <Japanese>プレイヤーのために有効にする</Japanese>
+      <Italian>Abilitato per i giocatori</Italian>
+      <French>Activé pour les joueurs</French>
+      <Polish>Włączone dla graczy</Polish>
+      <Russian>Включено для игроков</Russian>
+      <Portuguese>Habilitado para Jogadores</Portuguese>
+      <Czech>Povoleno pro hráče</Czech>
+    </Key>
+    <Key ID="STR_AAA_PlayersEnabled_Desc">
+      <English>Whether the mod is enabled for players or not. If this is disabled, the mod will only apply to AI units.</English>
+      <Spanish>Si el mod está habilitado para jugadores o no. Si está desactivado, el mod sólo se aplicará a las unidades de la IA.</Spanish>
+      <German>Ob die Mod für Spieler aktiviert ist oder nicht. Wenn dies deaktiviert ist, wird die Mod nur auf KI-Einheiten angewendet.</German>
+      <Chinesesimp>该MOD是否对玩家启用。如果禁用，该模型将只适用于AI单位。</Chinesesimp>
+      <Japanese>このMODをプレイヤーに対して有効にするかどうか。無効の場合、MODはAIユニットにのみ適用されます。</Japanese>
+      <Italian>Se la mod è abilitata o meno per i giocatori. Se è disattivata, la mod si applicherà solo alle unità AI.</Italian>
+      <French>Si le mod est activé pour les joueurs ou non. Si cette option est désactivée, le mod ne s'appliquera qu'aux unités d'IA.</French>
+      <Polish>Czy mod jest włączony dla graczy czy nie. Jeśli jest to wyłączone, mod będzie dotyczył tylko jednostek AI.</Polish>
+      <Russian>Включен ли мод для игроков или нет. Если этот параметр отключен, мод будет применяться только к юнитам ИИ.</Russian>
+      <Portuguese>Quer o mod esteja ou não activado para jogadores. Se este estiver desactivado, o mod só se aplicará a unidades de IA.</Portuguese>
+      <Czech>Zda je mod pro hráče povolen, nebo ne. Pokud je tato volba vypnutá, mod se bude vztahovat pouze na jednotky AI.</Czech>
+    </Key>
   </Package>
 </Project>
