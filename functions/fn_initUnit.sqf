@@ -21,9 +21,11 @@ _unit removeEventHandler ["HandleDamage", _unit getVariable ["ACE_medical_Handle
 _unit setVariable [
 	"ACE_medical_HandleDamageEHID", 
 	_unit addEventHandler ["HandleDamage", {
+
+		params ["_unit", "_selection", "_damage", "_source", "_projectile", "_hitIndex", "_instigator", "_hitPoint"];
+
 		// Only do AAA damage processing if the mod is enabled, and not for players unless AAA_VAR_PLAYERS_ENABLED
 		if (AAA_VAR_MOD_ENABLED && {AAA_VAR_PLAYERS_ENABLED || {!isPlayer _unit}}) then {
-			params ["_unit", "_selection", "_damage", "_source", "_projectile", "_hitIndex", "_instigator", "_hitPoint"];
 			
 			// Don't do custom damage processing for disabled hitpoints
 			if !(missionNameSpace getVariable [format ["AAA_VAR_%1_ENABLED", _hitPoint], false]) exitWith {};
@@ -45,8 +47,8 @@ _unit setVariable [
 			// Hitpoint damage to be added by this calculation
 			private _addedDamage = _damage - _prevDamage;
 
-			// If the hitpoint armor is bigger than THRESHOLD, caluclate the new damage, otherwise add no damage
-			if (_hitpointArmor > AAA_VAR_ARMOR_THRESHOLD_VALUE) then {
+			// If the hitpoint armor meets THRESHOLD, caluclate the new damage, otherwise do default handling
+			if (_hitpointArmor >= AAA_VAR_ARMOR_THRESHOLD_VALUE) then {
 				// Check if there's already an armor coefficient set for this unit, use that if there is
 				// Otherwise, get armor coefficient manually
 				private _unitCoef = _unit getVariable ["AAA_ArmorCoef", 0];
@@ -106,7 +108,7 @@ _unit setVariable [
 				private _damageMultiplier = _hitpointArmor / _armorCoef;
 				_addedDamage = _addedDamage * _damageMultiplier;
 			} else {
-				_addedDamage = 0;
+				// Do nothing
 			};
 			
 			if (AAA_VAR_DEBUG) then {
