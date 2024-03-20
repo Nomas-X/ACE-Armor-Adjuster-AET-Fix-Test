@@ -25,6 +25,26 @@ private _timeout = 30;                  // if condition isnt true within this ti
 
 
 private _statement = {
+
+	private _simulationType = switch (true) do {
+		case (!isMultiplayer): 				{ "Singleplayer" };
+		case (is3DENMultiplayer): 			{ "Editor Multiplayer" };
+		case (isMultiplayerSolo): 			{ "Local Hosted Solo" };
+		case (isDedicated): 				{ "Dedicated Server" };
+		case (isServer && hasInterface): 	{ "Local Hosted" };
+		case (hasInterface && !isServer ): 	{ "Player Client" };
+		case (!hasInterface && !isServer ): { "Headless Client" };
+	};
+
+	private _str1 format ['[CVO](debug)(fn_initUnit) _simulationType: %1 - player: %2 - _unit: %3 - AAA_VAR_isCBAsettingsInitialized: %4', _simulationType , player ,_unit , missionNamespace getVariable ["AAA_VAR_isCBAsettingsInitialized", false]];
+	private _str2 format ['[CVO](debug)(fn_initUnit) AAA_VAR_FORCE_BASE_ARMOR: %1 - AAA_VAR_BASE_ARMOR_VALUE: %2 - didJIPOwner _unit: %3 - didJIP: %4', , AAA_VAR_FORCE_BASE_ARMOR, AAA_VAR_BASE_ARMOR_VALUE, didJIPOwner _unit, didJIP];
+	
+	diag_log _str1;
+	diag_log _str2;
+	
+	if (!isServer) then {	[_str1] remoteExec ["diag_log", 2];	};
+	if (!isServer) then {	[_str2] remoteExec ["diag_log", 2]; };
+
 	params["_unit"];
 
 	// Remove existing ace medical damage event handler
