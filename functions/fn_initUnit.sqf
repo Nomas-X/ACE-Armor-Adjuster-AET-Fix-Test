@@ -12,127 +12,166 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-params["_unit"];
 
-// Remove existing ace medical damage event handler
-_unit removeEventHandler ["HandleDamage", _unit getVariable ["ACE_medical_HandleDamageEHID", -1]];
 
-// Replace with custom damage event handler
-_unit setVariable [
-	"ACE_medical_HandleDamageEHID", 
-	_unit addEventHandler ["HandleDamage", {
+// Establishes a CBA Wait Until based on the global Variable: AAA_VAR_isCBAsettingsInitialized or, after 30 secounds, it will safe-fail and execute the init code anyway.
+// if AAA_VAR_isCBAsettingsInitialized is already true, the Cba Wait Until will get skipped and the code will be executed directly.
+// This should take care of JIP Problems when a unit gets initialized before the CBA_settings are fully syncronized between server and clients. 
 
-		params ["_unit", "_selection", "_damage", "_source", "_projectile", "_hitIndex", "_instigator", "_hitPoint"];
+// CBA waitUntilStuff
+private _parameter = [_this#0];                // arguments to be passed on -> _this
+private _condition = {	missionNameSpace getVariable ["AAA_VAR_isCBAsettingsInitialized", false];	};                // condition - Needs to return bool
+private _timeout = 30;                  // if condition isnt true within this time in S, _timecode will be executed.
 
-		// Only do AAA damage processing if the mod is enabled, and not for players unless AAA_VAR_PLAYERS_ENABLED
-		if (AAA_VAR_MOD_ENABLED && {AAA_VAR_PLAYERS_ENABLED || {!isPlayer _unit}}) then {
-			
-			// Don't do custom damage processing for disabled hitpoints
-			if !(missionNameSpace getVariable [format ["AAA_VAR_%1_ENABLED", _hitPoint], false]) exitWith {};
-			
-			private ["_prevDamage", "_armorCoef", "_hitpointArmor"];
-			// Hitpoint damage before this calculation
-			if (_hitPoint == "") then {
-				_prevDamage = damage _unit;
-			} else {
-				_prevDamage = _unit getHitIndex _hitIndex;
-			};
-		
-			// Set hitpoint armor value to base armor value if forcing base armor, otherwise just add the base armor to the worn armor
-			if (AAA_VAR_FORCE_BASE_ARMOR) then {
-				_hitpointArmor = AAA_VAR_BASE_ARMOR_VALUE;
-			} else {
-				_hitpointArmor = AAA_VAR_BASE_ARMOR_VALUE + (([_unit, _hitPoint] call ace_medical_engine_fnc_getHitpointArmor) param [0]);
-			};
-			// Hitpoint damage to be added by this calculation
-			private _addedDamage = _damage - _prevDamage;
 
-			// If the hitpoint armor meets THRESHOLD, caluclate the new damage, otherwise do default handling
-			if (_hitpointArmor >= AAA_VAR_ARMOR_THRESHOLD_VALUE) then {
-				// Check if there's already an armor coefficient set for this unit, use that if there is
-				// Otherwise, get armor coefficient manually
-				private _unitCoef = _unit getVariable ["AAA_ArmorCoef", 0];
-				if (_unitCoef > 0) then {
-					_armorCoef = _unitCoef;
+private _statement = {
+
+	private _simulationType = switch (true) do {
+		case (!isMultiplayer): 				{ "Singleplayer" };
+		case (is3DENMultiplayer): 			{ "Editor Multiplayer" };
+		case (isMultiplayerSolo): 			{ "Local Hosted Solo" };
+		case (isDedicated): 				{ "Dedicated Server" };
+		case (isServer && hasInterface): 	{ "Local Hosted" };
+		case (hasInterface && !isServer ): 	{ "Player Client" };
+		case (!hasInterface && !isServer ): { "Headless Client" };
+	};
+
+	private _str1 = format ['[CVO](debug)(fn_initUnit) _simulationType: %1 - player: %2 - _unit: %3 - AAA_VAR_isCBAsettingsInitialized: %4', _simulationType , player ,_unit , missionNamespace getVariable ["AAA_VAR_isCBAsettingsInitialized", false]];
+	private _str2 = format ['[CVO](debug)(fn_initUnit) AAA_VAR_FORCE_BASE_ARMOR: %1 - AAA_VAR_BASE_ARMOR_VALUE: %2 - didJIPOwner _unit: %3 - didJIP: %4', AAA_VAR_FORCE_BASE_ARMOR, AAA_VAR_BASE_ARMOR_VALUE, didJIPOwner _unit, didJIP];
+	
+	diag_log _str1;
+	diag_log _str2;
+	
+	if (!isServer) then {	[_str1] remoteExec ["diag_log", 2];	};
+	if (!isServer) then {	[_str2] remoteExec ["diag_log", 2]; };
+
+	params["_unit"];
+
+	// Remove existing ace medical damage event handler
+	_unit removeEventHandler ["HandleDamage", _unit getVariable ["ACE_medical_HandleDamageEHID", -1]];
+
+	// Replace with custom damage event handler
+	_unit setVariable [
+		"ACE_medical_HandleDamageEHID", 
+		_unit addEventHandler ["HandleDamage", {
+
+			params ["_unit", "_selection", "_damage", "_source", "_projectile", "_hitIndex", "_instigator", "_hitPoint"];
+
+			// Only do AAA damage processing if the mod is enabled, and not for players unless AAA_VAR_PLAYERS_ENABLED
+			if (AAA_VAR_MOD_ENABLED && {AAA_VAR_PLAYERS_ENABLED || {!isPlayer _unit}}) then {
+				
+				// Don't do custom damage processing for disabled hitpoints
+				if !(missionNameSpace getVariable [format ["AAA_VAR_%1_ENABLED", _hitPoint], false]) exitWith {};
+				
+				private ["_prevDamage", "_armorCoef", "_hitpointArmor"];
+				// Hitpoint damage before this calculation
+				if (_hitPoint == "") then {
+					_prevDamage = damage _unit;
 				} else {
-					// Apply player and AI values
-					if (isPlayer _unit) then {
-						_armorCoef = AAA_VAR_PLAYER_ARMOR_COEF;
+					_prevDamage = _unit getHitIndex _hitIndex;
+				};
+			
+				// Set hitpoint armor value to base armor value if forcing base armor, otherwise just add the base armor to the worn armor
+				if (AAA_VAR_FORCE_BASE_ARMOR) then {
+					_hitpointArmor = AAA_VAR_BASE_ARMOR_VALUE;
+				} else {
+					_hitpointArmor = AAA_VAR_BASE_ARMOR_VALUE + (([_unit, _hitPoint] call ace_medical_engine_fnc_getHitpointArmor) param [0]);
+				};
+				// Hitpoint damage to be added by this calculation
+				private _addedDamage = _damage - _prevDamage;
+
+				// If the hitpoint armor meets THRESHOLD, caluclate the new damage, otherwise do default handling
+				if (_hitpointArmor >= AAA_VAR_ARMOR_THRESHOLD_VALUE) then {
+					// Check if there's already an armor coefficient set for this unit, use that if there is
+					// Otherwise, get armor coefficient manually
+					private _unitCoef = _unit getVariable ["AAA_ArmorCoef", 0];
+					if (_unitCoef > 0) then {
+						_armorCoef = _unitCoef;
 					} else {
-						_armorCoef = AAA_VAR_AI_ARMOR_COEF;
+						// Apply player and AI values
+						if (isPlayer _unit) then {
+							_armorCoef = AAA_VAR_PLAYER_ARMOR_COEF;
+						} else {
+							_armorCoef = AAA_VAR_AI_ARMOR_COEF;
+						};
+						// Optionally override values with side-based values
+						switch (side _unit) do {
+							case blufor: {
+								private _temp = AAA_VAR_BLUFOR_ARMOR_COEF;
+								if (_temp != 0) then {
+									_armorCoef = _temp;
+								};
+							};
+							case opfor: {
+								private _temp = AAA_VAR_OPFOR_ARMOR_COEF;
+								if (_temp != 0) then {
+									_armorCoef = _temp;
+								};
+							};
+							case civilian: {
+								private _temp = AAA_VAR_CIV_ARMOR_COEF;
+								if (_temp != 0) then {
+									_armorCoef = _temp;
+								};
+							};
+							case independent: {
+								private _temp = AAA_VAR_IND_ARMOR_COEF;
+								if (_temp != 0) then {
+									_armorCoef = _temp;
+								};
+							};
+						};
 					};
-					// Optionally override values with side-based values
-					switch (side _unit) do {
-						case blufor: {
-							private _temp = AAA_VAR_BLUFOR_ARMOR_COEF;
-							if (_temp != 0) then {
-								_armorCoef = _temp;
-							};
-						};
-						case opfor: {
-							private _temp = AAA_VAR_OPFOR_ARMOR_COEF;
-							if (_temp != 0) then {
-								_armorCoef = _temp;
-							};
-						};
-						case civilian: {
-							private _temp = AAA_VAR_CIV_ARMOR_COEF;
-							if (_temp != 0) then {
-								_armorCoef = _temp;
-							};
-						};
-						case independent: {
-							private _temp = AAA_VAR_IND_ARMOR_COEF;
-							if (_temp != 0) then {
-								_armorCoef = _temp;
-							};
-						};
+					// Apply optional hitpoint multiplier
+					// Try to find unit-specific hitpoint multiplier
+					private _hitPointMult = _unit getVariable [format ["AAA_%1_MULT", _hitPoint], 0];
+					if (_hitPointMult == 0) then {
+						// If we can't find a unit-specific multiplier, try to find a general one
+						_hitPointMult = missionNameSpace getVariable [format ["AAA_VAR_%1_MULT", _hitPoint], 0];
 					};
-				};
-				// Apply optional hitpoint multiplier
-				// Try to find unit-specific hitpoint multiplier
-				private _hitPointMult = _unit getVariable [format ["AAA_%1_MULT", _hitPoint], 0];
-				if (_hitPointMult == 0) then {
-					// If we can't find a unit-specific multiplier, try to find a general one
-					_hitPointMult = missionNameSpace getVariable [format ["AAA_VAR_%1_MULT", _hitPoint], 0];
-				};
-				// If we found a hitpoint multiplier, apply it to the armorCoef
-				if (_hitPointMult > 0) then {
-						_armorCoef = _armorCoef * _hitPointMult;
-				};
-				// Detect explosive damage and apply AAA_VAR_EXPLOSIVE_MULT if it is greater than 0 
-				if (AAA_VAR_EXPLOSIVE_MULT > 0 && {_projectile != "" && {getNumber (configFile >> "CfgAmmo" >> _projectile >> "indirectHit") > 0}}) then {
-					_armorCoef = _armorCoef * AAA_VAR_EXPLOSIVE_MULT;
-				};
-				// Multiply addedDamage by hitpoint's armor value divided by armor coefficient to correct ACE's armor
-				private _damageMultiplier = _hitpointArmor / _armorCoef;
-				_addedDamage = _addedDamage * _damageMultiplier;
-			} else {
-				// Do nothing
-			};
-			
-			if (AAA_VAR_DEBUG) then {
-				private _ogDamage = _damage - _prevDamage;
-				diag_log text "AAA DEBUG: NEW HIT PROCESSED! DETAILS BELOW:";
-				diag_log text format ["HIT UNIT: %1", _unit];
-				diag_log text format ["SHOOTER: %1", _source];
-				diag_log text format ["HITPOINT: %1", _hitPoint];
-				diag_log text format ["HITPOINT ARMOR: %1", _hitpointArmor];
-				diag_log text format ["ORIGINAL DAMAGE RECEIVED: %1", _ogDamage];
-				diag_log text format ["NEW DAMAGE RECEIVED: %1", _addedDamage];
-				if (_ogDamage != 0) then {
-					diag_log text format ["%1 DAMAGE CHANGE: %2%3", "%", ((_addedDamage - _ogDamage) * 100 / _ogDamage) toFixed 2, "%"];
+					// If we found a hitpoint multiplier, apply it to the armorCoef
+					if (_hitPointMult > 0) then {
+							_armorCoef = _armorCoef * _hitPointMult;
+					};
+					// Detect explosive damage and apply AAA_VAR_EXPLOSIVE_MULT if it is greater than 0 
+					if (AAA_VAR_EXPLOSIVE_MULT > 0 && {_projectile != "" && {getNumber (configFile >> "CfgAmmo" >> _projectile >> "indirectHit") > 0}}) then {
+						_armorCoef = _armorCoef * AAA_VAR_EXPLOSIVE_MULT;
+					};
+					// Multiply addedDamage by hitpoint's armor value divided by armor coefficient to correct ACE's armor
+					private _damageMultiplier = _hitpointArmor / _armorCoef;
+					_addedDamage = _addedDamage * _damageMultiplier;
 				} else {
-					diag_log text "% DAMAGE CHANGE: N/A";
+					// Do nothing
 				};
-				diag_log text format ["TOTAL HITPOINT DAMAGE: %1", _prevDamage + _addedDamage];
-				diag_log text "";
+				
+				if (AAA_VAR_DEBUG) then {
+					private _ogDamage = _damage - _prevDamage;
+					diag_log text "AAA DEBUG: NEW HIT PROCESSED! DETAILS BELOW:";
+					diag_log text format ["HIT UNIT: %1", _unit];
+					diag_log text format ["SHOOTER: %1", _source];
+					diag_log text format ["HITPOINT: %1", _hitPoint];
+					diag_log text format ["HITPOINT ARMOR: %1", _hitpointArmor];
+					diag_log text format ["ORIGINAL DAMAGE RECEIVED: %1", _ogDamage];
+					diag_log text format ["NEW DAMAGE RECEIVED: %1", _addedDamage];
+					if (_ogDamage != 0) then {
+						diag_log text format ["%1 DAMAGE CHANGE: %2%3", "%", ((_addedDamage - _ogDamage) * 100 / _ogDamage) toFixed 2, "%"];
+					} else {
+						diag_log text "% DAMAGE CHANGE: N/A";
+					};
+					diag_log text format ["TOTAL HITPOINT DAMAGE: %1", _prevDamage + _addedDamage];
+					diag_log text "";
+				};
+				
+				// Replace original damage value with new damage value
+				_this set [2, _prevDamage + _addedDamage];
 			};
-			
-			// Replace original damage value with new damage value
-			_this set [2, _prevDamage + _addedDamage];
-		};
-		// Call ace medical's damage handler with updated value
-		_this call ACE_medical_engine_fnc_handleDamage;
-	}]
-];
+			// Call ace medical's damage handler with updated value
+			_this call ACE_medical_engine_fnc_handleDamage;
+		}]
+	];
+};
+
+
+if ( missionNameSpace getVariable ["AAA_VAR_isCBAsettingsInitialized", false] ) then _statement else {
+	[_condition, _statement, _parameter, _timeout,_statement] call CBA_fnc_waitUntilAndExecute;
+};
