@@ -24,3 +24,8 @@ if (isServer) then {
 		};
 	}, true, [], true] call CBA_fnc_addClassEventHandler;
 };
+
+["CBA_settingsInitialized", {
+missionNameSpace setVariable ["AAA_VAR_isCBAsettingsInitialized", true, false];
+}] call CBA_fnc_addEventHandler;
+
