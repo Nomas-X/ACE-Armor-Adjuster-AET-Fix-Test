@@ -25,6 +25,7 @@ if (isServer) then {
 	}, true, [], true] call CBA_fnc_addClassEventHandler;
 };
 
+
 ["CBA_settingsInitialized", {
 missionNameSpace setVariable ["AAA_VAR_isCBAsettingsInitialized", true, false];
 
@@ -39,9 +40,6 @@ _simulationType = switch (true) do {
 		case (!hasInterface && !isServer ): { "Headless Client" };
 	};
 
-diag_log format ['[CVO](debug)(fn_init) cba_settingsInitialized! -  player: %1 - _simulationType: %2', player , _simulationType];
-
-
-
+diag_log format ['[CVO](debug)(fn_init) cba_settingsInitialized! -  player: %1 - _simulationType: %2 - didJIP: %3', player , _simulationType, didJIP];
 }] call CBA_fnc_addEventHandler;
 
