@@ -398,3 +398,21 @@ private _modName = localize "STR_AAA_Name";
 	{},
 	false
 ] call CBA_fnc_addSetting;
+
+["CBA_settingsInitialized", {
+missionNameSpace setVariable ["AAA_VAR_isCBAsettingsInitialized", true, false];
+
+
+_simulationType = switch (true) do {
+		case (!isMultiplayer): 				{ "Singleplayer" };
+		case (is3DENMultiplayer): 			{ "Editor Multiplayer" };
+		case (isMultiplayerSolo): 			{ "Local Hosted Solo" };
+		case (isDedicated): 				{ "Dedicated Server" };
+		case (isServer && hasInterface): 	{ "Local Hosted" };
+		case (hasInterface && !isServer ): 	{ "Player Client" };
+		case (!hasInterface && !isServer ): { "Headless Client" };
+	};
+
+diag_log format ['[CVO](debug)(fn_init) cba_settingsInitialized! -  player: %1 - _simulationType: %2 - didJIP: %3', player , _simulationType, didJIP];
+}] call CBA_fnc_addEventHandler;
+
