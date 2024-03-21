@@ -23,6 +23,18 @@ private _parameter = [_this#0];                // arguments to be passed on -> _
 private _condition = {	missionNameSpace getVariable ["AAA_VAR_isCBAsettingsInitialized", false];	};                // condition - Needs to return bool
 private _timeout = 30;                  // if condition isnt true within this time in S, _timecode will be executed.
 
+// AET Log Stuff
+private _str3 = format ['[AET](debug)(fn_initUnit) _this#0 value is: %1', _parameter];
+private _str4 = format ['[AET](debug)(fn_initUnit) _this value is: %1', _this];
+private _str5 = format ['[AET](debug)(fn_initUnit) _unit value is: %1', _unit];
+
+diag_log _str3;
+diag_log _str4;
+diag_log _str5;
+
+if (!isServer) then {	[_str3] remoteExec ["diag_log", 2];	};
+if (!isServer) then {	[_str4] remoteExec ["diag_log", 2]; };
+if (!isServer) then {	[_str5] remoteExec ["diag_log", 2]; };
 
 private _statement = {
 
