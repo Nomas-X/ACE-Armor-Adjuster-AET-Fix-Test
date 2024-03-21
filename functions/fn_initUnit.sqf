@@ -18,6 +18,8 @@
 // if AAA_VAR_isCBAsettingsInitialized is already true, the Cba Wait Until will get skipped and the code will be executed directly.
 // This should take care of JIP Problems when a unit gets initialized before the CBA_settings are fully syncronized between server and clients. 
 
+params["_unit"];
+
 // CBA waitUntilStuff
 private _parameter = [_this#0];                // arguments to be passed on -> _this
 private _condition = {	missionNameSpace getVariable ["AAA_VAR_isCBAsettingsInitialized", false];	};                // condition - Needs to return bool
