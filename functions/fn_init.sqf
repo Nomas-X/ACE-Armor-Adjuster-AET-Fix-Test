@@ -17,10 +17,21 @@ if (isServer) then {
 	// Call AAA_fnc_initUnit locally to each unit when they init
 	["CAManBase", "init", {
 		params ["_unit"];
+
+		diag_log "[CVO](debug)(fn_init) CBA Class Eventhandler Start";
+		diag_log format ['[CVO](debug)(fn_init) _unit: %1', _unit];
+
 		if (local _unit) then {
 			[_unit] call AAA_fnc_initUnit;
+			diag_log "[CVO](debug)(fn_init) Post FNC - Local";
+
 		} else {
 			[_unit] remoteExecCall ["AAA_fnc_initUnit", _unit];
+			diag_log "[CVO](debug)(fn_init) Post FNC - Remote";
 		};
+
+		diag_log "[CVO](debug)(fn_init) CBA Class Eventhandler End";
+
 	}, true, [], true] call CBA_fnc_addClassEventHandler;
 };
+

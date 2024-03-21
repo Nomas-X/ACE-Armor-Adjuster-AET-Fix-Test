@@ -19,24 +19,22 @@
 // This should take care of JIP Problems when a unit gets initialized before the CBA_settings are fully syncronized between server and clients. 
 
 // CBA waitUntilStuff
-private _parameter = [_this#0];                // arguments to be passed on -> _this
+private _parameter = [_this#0];                																		  // arguments to be passed on -> _this
 private _condition = {	missionNameSpace getVariable ["AAA_VAR_isCBAsettingsInitialized", false];	};                // condition - Needs to return bool
-private _timeout = 30;                  // if condition isnt true within this time in S, _timecode will be executed.
+private _timeout = 30;                  																			  // if condition isnt true within this time in S, _timecode will be executed.
+
+
 
 // AET Log Stuff
-private _str3 = format ['[AET](debug)(fn_initUnit) _this#0 value is: %1', _parameter];
-private _str4 = format ['[AET](debug)(fn_initUnit) _this value is: %1', _this];
-private _str5 = format ['[AET](debug)(fn_initUnit) _unit value is: %1', _unit];
+private _str1 = format ['[AET](debug)(fn_initUnit) _this#0 value is: %1', _parameter];
+private _str2 = format ['[AET](debug)(fn_initUnit) _this value is: %1', _this];
+private _str3 = format ['[AET](debug)(fn_initUnit) _unit value is: %1', _unit];
+{	if (isServer) then { diag_log _x; } else {	[_x] remoteExec ["diag_log", 2];	};	} forEach [_str1,_str2, _str3];
 
-diag_log _str3;
-diag_log _str4;
-diag_log _str5;
-
-if (!isServer) then {	[_str3] remoteExec ["diag_log", 2];	};
-if (!isServer) then {	[_str4] remoteExec ["diag_log", 2]; };
-if (!isServer) then {	[_str5] remoteExec ["diag_log", 2]; };
 
 private _statement = {
+
+	params["_unit"];
 
 	private _simulationType = switch (true) do {
 		case (!isMultiplayer): 				{ "Singleplayer" };
@@ -51,13 +49,7 @@ private _statement = {
 	private _str1 = format ['[CVO](debug)(fn_initUnit) _simulationType: %1 - player: %2 - _unit: %3 - AAA_VAR_isCBAsettingsInitialized: %4', _simulationType , player ,_unit , missionNamespace getVariable ["AAA_VAR_isCBAsettingsInitialized", false]];
 	private _str2 = format ['[CVO](debug)(fn_initUnit) AAA_VAR_FORCE_BASE_ARMOR: %1 - AAA_VAR_BASE_ARMOR_VALUE: %2 - didJIPOwner _unit: %3 - didJIP: %4', AAA_VAR_FORCE_BASE_ARMOR, AAA_VAR_BASE_ARMOR_VALUE, didJIPOwner _unit, didJIP];
 	
-	diag_log _str1;
-	diag_log _str2;
-	
-	if (!isServer) then {	[_str1] remoteExec ["diag_log", 2];	};
-	if (!isServer) then {	[_str2] remoteExec ["diag_log", 2]; };
-
-	params["_unit"];
+	{	if (isServer) then { diag_log _x; } else {	[_x] remoteExec ["diag_log", 2];	};	} forEach [_str1,_str2];
 
 	// Remove existing ace medical damage event handler
 	_unit removeEventHandler ["HandleDamage", _unit getVariable ["ACE_medical_HandleDamageEHID", -1]];
